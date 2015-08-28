@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.frame.setting_frame &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="dogu.frame" href="../frame.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dogu.frame.setting_frame</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    +-------------------------------+</span>
+<span class="sd">    |       Identifier (16)         |</span>
+<span class="sd">    +-------------------------------+-------------------------------+</span>
+<span class="sd">    |                        Value (32)                             |</span>
+<span class="sd">    +---------------------------------------------------------------+</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">dogu.frame</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Frame</span><span class="p">,</span> <span class="n">FrameType</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">dogu.http2_exception</span> <span class="kn">import</span> <span class="n">ProtocolError</span>
+<span class="kn">from</span> <span class="nn">dogu.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<div class="viewcode-block" id="SettingFrame"><a class="viewcode-back" href="../../../dogu.frame.setting_frame.html#dogu.frame.setting_frame.SettingFrame">[docs]</a><span class="k">class</span> <span class="nc">SettingFrame</span><span class="p">(</span><span class="n">Frame</span><span class="p">):</span>
+
+    <span class="n">ACK_FLAG</span> <span class="o">=</span> <span class="mh">0x1</span>
+
+    <span class="c"># setting identifier</span>
+
+    <span class="n">SETTINGS_HEADER_TABLE_SIZE</span> <span class="o">=</span> <span class="mh">0x1</span>
+
+    <span class="n">SETTINGS_ENABLE_PUSH</span> <span class="o">=</span> <span class="mh">0x2</span>
+
+    <span class="n">SETTINGS_MAX_CONCURRENT_STREAMS</span> <span class="o">=</span> <span class="mh">0x3</span>
+
+    <span class="n">SETTINGS_INITIAL_WINDOW_SIZE</span> <span class="o">=</span> <span class="mh">0x4</span>
+
+    <span class="n">SETTINGS_MAX_FRAME_SIZE</span> <span class="o">=</span> <span class="mh">0x5</span>
+
+    <span class="n">SETTINGS_MAX_HEADER_LIST_SIZE</span> <span class="o">=</span> <span class="mh">0x6</span>
+
+    <span class="n">SETTINGS_RANGE</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>  <span class="c"># range from 1 to 6</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SettingFrame.load"><a class="viewcode-back" href="../../../dogu.frame.setting_frame.html#dogu.frame.setting_frame.SettingFrame.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;recv settings frame </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span>  <span class="n">frame</span><span class="p">)</span>
+
+        <span class="c"># frame length, type, flag, id</span>
+        <span class="n">frm_len</span><span class="p">,</span> <span class="n">frm_type</span><span class="p">,</span> <span class="n">frm_flag</span><span class="p">,</span> <span class="n">frm_id</span> <span class="o">=</span> <span class="n">header</span>
+
+        <span class="k">if</span> <span class="n">frm_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mh">0x0</span><span class="p">:</span>  <span class="c"># protocol error</span>
+            <span class="k">raise</span> <span class="n">ProtocolError</span><span class="p">(</span><span class="s">&quot;&#39;frm_id must be 0x0&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">frm_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">FrameType</span><span class="o">.</span><span class="n">SETTINGS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;frame is not type of SETTINGS type&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">frm_flag</span> <span class="o">==</span> <span class="n">SettingFrame</span><span class="o">.</span><span class="n">ACK_FLAG</span> <span class="ow">and</span> <span class="n">frm_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>  <span class="c"># protocol error</span>
+            <span class="k">raise</span> <span class="n">ProtocolError</span><span class="p">(</span><span class="s">&quot;Frame is ACK frame but frame length is not 0&quot;</span><span class="p">)</span>
+
+        <span class="n">setting_frame</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+
+        <span class="c"># check frame flag</span>
+        <span class="k">if</span> <span class="n">frm_flag</span> <span class="o">==</span> <span class="n">SettingFrame</span><span class="o">.</span><span class="n">ACK_FLAG</span><span class="p">:</span>
+            <span class="n">setting_frame</span><span class="o">.</span><span class="n">is_ack</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">frm_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>  <span class="c"># parsing setting list</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c"># first frame payload index</span>
+
+            <span class="k">try</span><span class="p">:</span>  <span class="c"># check for out of index</span>
+                <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">frm_len</span><span class="p">:</span>  <span class="c"># index default value was 9</span>
+
+                    <span class="n">setting_id</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span>
+                    <span class="n">setting_id</span> <span class="o">+=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>  <span class="c"># read setting id 16 bit</span>
+
+                    <span class="c"># read setting value 32 bit</span>
+                    <span class="n">setting_value</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span>
+                    <span class="n">setting_value</span> <span class="o">+=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span>
+                    <span class="n">setting_value</span> <span class="o">+=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span>
+                    <span class="n">setting_value</span> <span class="o">+=</span> <span class="n">frame</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">5</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">setting_id</span> <span class="ow">in</span> <span class="n">SettingFrame</span><span class="o">.</span><span class="n">SETTINGS_RANGE</span><span class="p">:</span>  <span class="c"># ignore if setting id is not in range</span>
+                        <span class="n">setting_frame</span><span class="o">.</span><span class="n">_setting_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting_id</span><span class="p">,</span> <span class="n">setting_value</span><span class="p">))</span>
+
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">6</span>  <span class="c"># read 6 byte more for next reading</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ProtocolError</span><span class="p">(</span><span class="s">&quot;frame payload is out of format&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">setting_frame</span>
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_ack</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setting_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ack</span> <span class="o">=</span> <span class="n">is_ack</span>  <span class="c"># is frame ACK SETTINGS frame</span>
+
+        <span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">FrameType</span><span class="o">.</span><span class="n">SETTINGS</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="mh">0x0</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mh">0x0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setting_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setting_list</span>
+
+<div class="viewcode-block" id="SettingFrame.set"><a class="viewcode-back" href="../../../dogu.frame.setting_frame.html#dogu.frame.setting_frame.SettingFrame.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting_id</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mh">0x0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ack</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;this SETTINGS frame is ACK SETTINGS&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setting_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting_id</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="SettingFrame.get"><a class="viewcode-back" href="../../../dogu.frame.setting_frame.html#dogu.frame.setting_frame.SettingFrame.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting_id</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setting_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">setting</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">setting_id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setting</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">None</span>  <span class="c"># if setting is not defined return None</span>
+</div>
+<div class="viewcode-block" id="SettingFrame.get_frame_bin"><a class="viewcode-back" href="../../../dogu.frame.setting_frame.html#dogu.frame.setting_frame.SettingFrame.get_frame_bin">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_bin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ack</span><span class="p">:</span>  <span class="c"># If user didn&#39;t set data</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setting_list</span><span class="p">:</span>
+
+                <span class="c"># set identifier 16 bit</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x0000FF00</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x000000FF</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+                <span class="c"># set value 32 bit</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF000000</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x00FF0000</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x0000FF00</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">setting</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x000000FF</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ack</span><span class="p">:</span>  <span class="c"># if ACK SETTINGS frame clear payload</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flag</span> <span class="o">=</span> <span class="n">SettingFrame</span><span class="o">.</span><span class="n">ACK_FLAG</span>
+
+        <span class="c"># call super get_frame_bin</span>
+
+        <span class="k">return</span> <span class="n">Frame</span><span class="o">.</span><span class="n">get_frame_bin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../frame.html">dogu.frame</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

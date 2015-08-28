@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.stream.http1 module &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dogu.stream.http1">
+<span id="dogu-stream-http1-module"></span><h1>dogu.stream.http1 module<a class="headerlink" href="#module-dogu.stream.http1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dogu-http1-connection">
+<h2>dogu.http1.connection<a class="headerlink" href="#dogu-http1-connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dogu.stream.http1.StreamHTTP1">
+<em class="property">class </em><code class="descclassname">dogu.stream.http1.</code><code class="descname">StreamHTTP1</code><span class="sig-paren">(</span><em>conn</em>, <em>stream_id=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dogu.stream.html#dogu.stream.Stream" title="dogu.stream.Stream"><code class="xref py py-class docutils literal"><span class="pre">dogu.stream.Stream</span></code></a></p>
+<dl class="attribute">
+<dt id="dogu.stream.http1.StreamHTTP1.DEFAULT_ENCODING_TYPE">
+<code class="descname">DEFAULT_ENCODING_TYPE</code><em class="property"> = 'iso-8859-1'</em><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.DEFAULT_ENCODING_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dogu.stream.http1.StreamHTTP1.EOL_MARKER">
+<code class="descname">EOL_MARKER</code><em class="property"> = b'\r\n'</em><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.EOL_MARKER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.flush_data">
+<code class="descname">flush_data</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.flush_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.flush_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.flush_header">
+<code class="descname">flush_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.flush_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.flush_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.parse_request">
+<code class="descname">parse_request</code><span class="sig-paren">(</span><em>rfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.parse_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.parse_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.run_app">
+<code class="descname">run_app</code><span class="sig-paren">(</span><em>app</em>, <em>environ</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.run_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.run_app" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.run_stream">
+<code class="descname">run_stream</code><span class="sig-paren">(</span><em>rfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.run_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.run_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.send_header">
+<code class="descname">send_header</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.send_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.send_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.send_response">
+<code class="descname">send_response</code><span class="sig-paren">(</span><em>code</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.send_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.send_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.stream.http1.StreamHTTP1.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/stream/http1.html#StreamHTTP1.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.stream.http1.StreamHTTP1.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dogu.stream.http1 module</a><ul>
+<li><a class="reference internal" href="#dogu-http1-connection">dogu.http1.connection</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dogu.stream.http1.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/dogu.stream.http1.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

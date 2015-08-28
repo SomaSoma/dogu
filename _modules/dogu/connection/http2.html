@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.connection.http2 &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="dogu.connection" href="../connection.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dogu.connection.http2</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    dogu.http2.connection</span>
+<span class="sd">    ~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">dogu.connection</span> <span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span> <span class="nn">hpack.hpack</span> <span class="kn">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">Decoder</span>
+<span class="kn">from</span> <span class="nn">dogu.stream.http2</span> <span class="kn">import</span> <span class="n">StreamHTTP2</span>
+<span class="kn">from</span> <span class="nn">dogu.http2_exception</span> <span class="kn">import</span> <span class="n">StreamClosedError</span><span class="p">,</span> <span class="n">HTTP2Error</span>
+<span class="kn">from</span> <span class="nn">dogu.frame</span> <span class="kn">import</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">FrameType</span>
+<span class="kn">from</span> <span class="nn">dogu.frame.goaway_frame</span> <span class="kn">import</span> <span class="n">GoawayFrame</span>
+<span class="kn">from</span> <span class="nn">dogu.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">sleep</span>
+
+<div class="viewcode-block" id="HTTP2Connection"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection">[docs]</a><span class="k">class</span> <span class="nc">HTTP2Connection</span><span class="p">(</span><span class="n">HTTPConnection</span><span class="p">):</span>
+
+    <span class="n">STREAM_HEADER_SIZE</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">DEFAULT_INITIAL_WINDOW_SIZE</span> <span class="o">=</span> <span class="mi">65535</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">is_http2</span><span class="p">,</span>
+        <span class="n">remote_addr</span><span class="p">,</span>
+        <span class="n">server_setting</span><span class="p">,</span>
+        <span class="n">app_list</span><span class="p">,</span>
+        <span class="n">rfile</span><span class="p">,</span>
+        <span class="n">wfile</span>
+    <span class="p">):</span>
+        <span class="n">HTTPConnection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">is_http2</span><span class="p">,</span>
+            <span class="n">remote_addr</span><span class="p">,</span>
+            <span class="n">server_setting</span><span class="p">,</span>
+            <span class="n">app_list</span><span class="p">,</span>
+            <span class="n">rfile</span><span class="p">,</span>
+            <span class="n">wfile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">Decoder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_stream_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_initial_window_size</span> <span class="o">=</span> <span class="n">HTTP2Connection</span><span class="o">.</span><span class="n">DEFAULT_INITIAL_WINDOW_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recv_initial_window_size</span> <span class="o">=</span> <span class="n">HTTP2Connection</span><span class="o">.</span><span class="n">DEFAULT_INITIAL_WINDOW_SIZE</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">StreamHTTP2</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">stream_id</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="HTTP2Connection.create_stream"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection.create_stream">[docs]</a>    <span class="k">def</span> <span class="nf">create_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># when server create stream</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_stream_id</span> <span class="o">+=</span> <span class="mi">2</span>  <span class="c"># update last stream id</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">StreamHTTP2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_stream_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_stream_id</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stream</span>
+</div>
+<div class="viewcode-block" id="HTTP2Connection.created_stream"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection.created_stream">[docs]</a>    <span class="k">def</span> <span class="nf">created_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_id</span><span class="p">):</span>  <span class="c"># when client create stream</span>
+
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">StreamHTTP2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_stream</span><span class="p">(</span><span class="n">stream_id</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stream</span>
+</div>
+<div class="viewcode-block" id="HTTP2Connection.register_stream"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection.register_stream">[docs]</a>    <span class="k">def</span> <span class="nf">register_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_id</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_dict</span><span class="p">[</span><span class="n">stream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
+</div>
+<div class="viewcode-block" id="HTTP2Connection.get_stream"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection.get_stream">[docs]</a>    <span class="k">def</span> <span class="nf">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_id</span><span class="p">):</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">stream_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_closed</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">StreamClosedError</span><span class="p">()</span>  <span class="c"># if closed stream raise exception</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">StreamHTTP2</span><span class="o">.</span><span class="n">is_server_stream_id</span><span class="p">(</span><span class="n">stream_id</span><span class="p">):</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">created_stream</span><span class="p">(</span><span class="n">stream_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stream</span>
+</div>
+<div class="viewcode-block" id="HTTP2Connection.run"><a class="viewcode-back" href="../../../dogu.connection.http2.html#dogu.connection.http2.HTTP2Connection.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">raw_frame_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">HTTP2Connection</span><span class="o">.</span><span class="n">STREAM_HEADER_SIZE</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_frame_header</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c"># user close connection</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;user close connection&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">frame_header</span> <span class="o">=</span> <span class="n">Frame</span><span class="o">.</span><span class="n">parse_header</span><span class="p">(</span>
+                    <span class="n">raw_frame_header</span><span class="p">[:</span><span class="n">HTTP2Connection</span><span class="o">.</span><span class="n">STREAM_HEADER_SIZE</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="p">(</span><span class="n">frame_len</span><span class="p">,</span> <span class="n">frame_type</span><span class="p">,</span> <span class="n">frame_flag</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">)</span> <span class="o">=</span> <span class="n">frame_header</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">target_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">StreamClosedError</span><span class="p">:</span>  <span class="c"># if closed error</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">frame_type</span> <span class="o">==</span> <span class="n">FrameType</span><span class="o">.</span><span class="n">WINDOW_UPDATE</span> <span class="ow">or</span>
+                            <span class="n">frame_type</span> <span class="o">==</span> <span class="n">FrameType</span><span class="o">.</span><span class="n">RST_STREAM</span> <span class="ow">or</span>
+                            <span class="n">frame_type</span> <span class="o">==</span> <span class="n">FrameType</span><span class="o">.</span><span class="n">PRIORITY</span><span class="p">):</span>
+
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;User send frame in closed stream(frame_type: </span><span class="si">%d</span><span class="s">)&#39;</span><span class="p">,</span> <span class="n">frame_type</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">StreamClosedError</span><span class="p">(</span><span class="s">&#39;User send frame in closed stream(frame_type: </span><span class="si">%d</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="n">frame_type</span><span class="p">)</span>
+
+                <span class="c"># close connection</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">target_stream</span><span class="o">.</span><span class="n">run_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rfile</span><span class="p">,</span> <span class="n">frame_header</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">HTTP2Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_setting</span><span class="p">[</span><span class="s">&#39;debug&#39;</span><span class="p">]:</span>
+                    <span class="kn">import</span> <span class="nn">traceback</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Goaway id </span><span class="si">%d</span><span class="s"> debug data: </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">debug_data</span><span class="p">)</span>
+                <span class="n">goaway</span> <span class="o">=</span> <span class="n">GoawayFrame</span><span class="p">(</span><span class="n">frame_id</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">debug_data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">goaway</span><span class="o">.</span><span class="n">get_frame_bin</span><span class="p">())</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../connection.html">dogu.connection</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

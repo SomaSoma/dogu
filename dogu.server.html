@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.server module &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dogu.server">
+<span id="dogu-server-module"></span><h1>dogu.server module<a class="headerlink" href="#module-dogu.server" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dogu-server">
+<h2>dogu.server<a class="headerlink" href="#dogu-server" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dogu.server.Server">
+<em class="property">class </em><code class="descclassname">dogu.server.</code><code class="descname">Server</code><span class="sig-paren">(</span><em>setting</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">gevent.threading.Thread</span></code></p>
+<dl class="method">
+<dt id="dogu.server.Server.close_connection">
+<code class="descname">close_connection</code><span class="sig-paren">(</span><em>tcp_connection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.close_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.close_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.server.Server.create_workers">
+<code class="descname">create_workers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.create_workers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.create_workers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.server.Server.default_setting">
+<code class="descname">default_setting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.default_setting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.default_setting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.server.Server.process_tcp_connection">
+<code class="descname">process_tcp_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.process_tcp_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.process_tcp_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.server.Server.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>server_name</em>, <em>app</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.server.Server.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#Server.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.Server.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dogu.server.set_server">
+<code class="descclassname">dogu.server.</code><code class="descname">set_server</code><span class="sig-paren">(</span><em>host='127.0.0.1'</em>, <em>port=2043</em>, <em>server_name='default'</em>, <em>app=None</em>, <em>workers=1</em>, <em>process=1</em>, <em>input_buffer_size=1000</em>, <em>output_buffer_size=1000</em>, <em>keep_alive=True</em>, <em>keep_alive_timeout=10</em>, <em>use_ssl=False</em>, <em>crt_file=''</em>, <em>key_file=''</em>, <em>debug=False</em>, <em>use_http2=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#set_server"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.set_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is wrapping dogu interface application
+to run with specific settings</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dogu.server.start">
+<code class="descclassname">dogu.server.</code><code class="descname">start</code><span class="sig-paren">(</span><em>server_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/server.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.server.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dogu.server module</a><ul>
+<li><a class="reference internal" href="#dogu-server">dogu.server</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dogu.server.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/dogu.server.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

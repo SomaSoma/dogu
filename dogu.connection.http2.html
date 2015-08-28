@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.connection.http2 module &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dogu.connection.http2">
+<span id="dogu-connection-http2-module"></span><h1>dogu.connection.http2 module<a class="headerlink" href="#module-dogu.connection.http2" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dogu-http2-connection">
+<h2>dogu.http2.connection<a class="headerlink" href="#dogu-http2-connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dogu.connection.http2.HTTP2Connection">
+<em class="property">class </em><code class="descclassname">dogu.connection.http2.</code><code class="descname">HTTP2Connection</code><span class="sig-paren">(</span><em>is_http2</em>, <em>remote_addr</em>, <em>server_setting</em>, <em>app_list</em>, <em>rfile</em>, <em>wfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dogu.connection.html#dogu.connection.HTTPConnection" title="dogu.connection.HTTPConnection"><code class="xref py py-class docutils literal"><span class="pre">dogu.connection.HTTPConnection</span></code></a></p>
+<dl class="attribute">
+<dt id="dogu.connection.http2.HTTP2Connection.DEFAULT_INITIAL_WINDOW_SIZE">
+<code class="descname">DEFAULT_INITIAL_WINDOW_SIZE</code><em class="property"> = 65535</em><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.DEFAULT_INITIAL_WINDOW_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dogu.connection.http2.HTTP2Connection.STREAM_HEADER_SIZE">
+<code class="descname">STREAM_HEADER_SIZE</code><em class="property"> = 9</em><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.STREAM_HEADER_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.connection.http2.HTTP2Connection.create_stream">
+<code class="descname">create_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection.create_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.create_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.connection.http2.HTTP2Connection.created_stream">
+<code class="descname">created_stream</code><span class="sig-paren">(</span><em>stream_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection.created_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.created_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.connection.http2.HTTP2Connection.get_stream">
+<code class="descname">get_stream</code><span class="sig-paren">(</span><em>stream_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection.get_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.get_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.connection.http2.HTTP2Connection.register_stream">
+<code class="descname">register_stream</code><span class="sig-paren">(</span><em>stream_id</em>, <em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection.register_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.register_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dogu.connection.http2.HTTP2Connection.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dogu/connection/http2.html#HTTP2Connection.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dogu.connection.http2.HTTP2Connection.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dogu.connection.http2 module</a><ul>
+<li><a class="reference internal" href="#dogu-http2-connection">dogu.http2.connection</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dogu.connection.http2.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/dogu.connection.http2.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

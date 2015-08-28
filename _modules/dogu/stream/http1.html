@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dogu.stream.http1 &mdash; dogu 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="dogu 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="dogu.stream" href="../stream.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dogu.stream.http1</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    dogu.http1.connection</span>
+<span class="sd">    ~~~~~~~</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">dogu.stream</span> <span class="kn">import</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">monkey</span>
+
+<span class="n">monkey</span><span class="o">.</span><span class="n">patch_all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StreamHTTP1"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1">[docs]</a><span class="k">class</span> <span class="nc">StreamHTTP1</span><span class="p">(</span><span class="n">Stream</span><span class="p">):</span>
+
+    <span class="n">DEFAULT_ENCODING_TYPE</span> <span class="o">=</span> <span class="s">&#39;iso-8859-1&#39;</span>
+    <span class="n">EOL_MARKER</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;iso-8859-1&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">stream_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">Stream</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">stream_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promise</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># no push handler</span>
+
+<div class="viewcode-block" id="StreamHTTP1.send_response"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.send_response">[docs]</a>    <span class="k">def</span> <span class="nf">send_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">http_version</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">code</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                <span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">DEFAULT_ENCODING_TYPE</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">EOL_MARKER</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.send_header"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.send_header">[docs]</a>    <span class="k">def</span> <span class="nf">send_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">DEFAULT_ENCODING_TYPE</span><span class="p">)</span>
+        <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.flush_header"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.flush_header">[docs]</a>    <span class="k">def</span> <span class="nf">flush_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">EOL_MARKER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.write"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.flush_data"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.flush_data">[docs]</a>    <span class="k">def</span> <span class="nf">flush_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.run_stream"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.run_stream">[docs]</a>    <span class="k">def</span> <span class="nf">run_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rfile</span><span class="p">):</span>
+        <span class="n">request</span><span class="p">,</span> <span class="n">end_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_request</span><span class="p">(</span><span class="n">rfile</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">request</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">http_version</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">request</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">http_version</span> <span class="o">=</span> <span class="n">http_version</span>  <span class="c"># get HTTP version in requset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_with_dogu</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">rfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c"># this case probably malformed request</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">end_connection</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.run_app"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.run_app">[docs]</a>    <span class="k">def</span> <span class="nf">run_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">environ</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_response</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StreamHTTP1.parse_request"><a class="viewcode-back" href="../../../dogu.stream.http1.html#dogu.stream.http1.StreamHTTP1.parse_request">[docs]</a>    <span class="k">def</span> <span class="nf">parse_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rfile</span><span class="p">):</span>
+        <span class="n">raw_requestline</span> <span class="o">=</span> <span class="n">rfile</span><span class="o">.</span><span class="n">readline</span><span class="p">(</span><span class="mi">65537</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">DEFAULT_ENCODING_TYPE</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_requestline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>  <span class="c"># user end connection</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="s">&#39;GET&#39;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+        <span class="n">http_version</span> <span class="o">=</span> <span class="s">&#39;HTTP/0.9&#39;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_requestline</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">65536</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>  <span class="c"># end request line</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_requestline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+
+        <span class="n">requestline</span> <span class="o">=</span> <span class="n">raw_requestline</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span>
+
+        <span class="n">words</span> <span class="o">=</span> <span class="n">requestline</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">http_version</span> <span class="o">=</span> <span class="n">words</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">http_version</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;HTTP/&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+            <span class="n">base_version_number</span> <span class="o">=</span> <span class="n">http_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">version_number</span> <span class="o">=</span> <span class="n">base_version_number</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+            <span class="c"># RFC 2145 section 3.1 says there can be only one &quot;.&quot; and</span>
+            <span class="c">#   - major and minor numbers MUST be treated as</span>
+            <span class="c">#      separate integers;</span>
+            <span class="c">#   - HTTP/2.4 is a lower version than HTTP/2.13, which in</span>
+            <span class="c">#      turn is lower than HTTP/12.3;</span>
+            <span class="c">#   - Leading zeros MUST be ignored by recipients.</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">version_number</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">command</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">words</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="o">==</span> <span class="s">&#39;GET&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+
+        <span class="n">header_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">requestline</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">header_size</span> <span class="o">&lt;</span> <span class="mi">65536</span><span class="p">:</span>
+            <span class="n">header_line</span> <span class="o">=</span> <span class="n">rfile</span><span class="o">.</span><span class="n">readline</span><span class="p">(</span><span class="mi">65537</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">StreamHTTP1</span><span class="o">.</span><span class="n">DEFAULT_ENCODING_TYPE</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\r\n</span><span class="s">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">header_line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">header_size</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">header_line</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">header_line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="o">==</span> <span class="n">header_line</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span>
+
+                <span class="n">headers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">header_words</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">header_words</span> <span class="ow">in</span> <span class="n">header_line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">http_version</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="p">),</span> <span class="bp">False</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../stream.html">dogu.stream</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Luavis Kang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
